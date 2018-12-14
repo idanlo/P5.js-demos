@@ -97,6 +97,44 @@ function draw() {
     }
 }
 
+function touchStarted() {
+    if (!soundStarted) {
+        getAudioContext().resume();
+        env = new p5.Envelope();
+        env.setADSR(0.02, 0.1, 0.5, 1);
+        env.setRange(0.8, 0);
+        wave = new p5.Oscillator();
+        wave.setType("sine");
+        wave.start();
+        wave.freq(523.25);
+        wave.amp(env);
+        soundStarted = true;
+    }
+
+    let i = 0;
+    // get to the first not-checked tile and store it's index in the variable i
+    while (i < tiles.length && tiles[i].checked) {
+        i++;
+    }
+    let tileX = tiles[i].pos * TILE_WIDTH;
+    if (
+        !tiles[i].checked &&
+        mouseX >= tileX &&
+        mouseX <= tileX + TILE_WIDTH &&
+        mouseY >= tiles[i].y &&
+        mouseY <= tiles[i].y + TILE_HEIGHT
+    ) {
+        wave.freq(song[noteCounter]);
+        env.play();
+        noteCounter++;
+        if (noteCounter === song.length) {
+            noteCounter = 0;
+        }
+        score += tiles[i].score;
+        tiles[i].checked = true;
+    }
+}
+
 function keyPressed() {
     if (!soundStarted) {
         getAudioContext().resume();
